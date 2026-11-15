@@ -119,10 +119,31 @@ describe('computeAffectedSuites', () => {
     ])
   })
 
+  it('runs the Neo SDK gate when its standalone check script changes', () => {
+    const check = 'packages/browseros-agent/crates/neo-sdk/check.sh'
+    expect(suiteNames([], [check])).toEqual(['claw-sdk-quality'])
+    const alsoAffected = suiteNames(
+      [pkg('@browseros/neo-server', 'crates/neo-sdk/neo-server')],
+      [check],
+    )
+    expect(alsoAffected.filter((suite) => suite === 'claw-sdk-quality')).toEqual([
+      'claw-sdk-quality',
+    ])
+    expect(suiteNames([], [`${check}.notes`])).toEqual([])
+  })
+
   it('adds the build suite when scripts change', () => {
     expect(
       suiteNames([], ['packages/browseros-agent/scripts/build/server.ts']),
     ).toEqual(['build'])
+  })
+
+  it('runs the offline remote-build helper tests for tool-only changes', () => {
+    const tools = 'packages/browseros-agent/tools/remote-builds'
+    for (const file of ['remote.py', 'test_remote.py', 'README.md']) {
+      expect(suiteNames([], [`${tools}/${file}`])).toEqual(['claw-sdk-quality'])
+    }
+    expect(suiteNames([], [`${tools}-docs/README.md`])).toEqual([])
   })
 
   it('adds the release suite for release scripts and workflows', () => {

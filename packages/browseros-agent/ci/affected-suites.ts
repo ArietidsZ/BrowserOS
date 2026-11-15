@@ -252,6 +252,8 @@ export function computeAffectedSuites(
   }
 
   // Path signals for things that are not workspace packages.
+  if (changedFiles.includes(`${AGENT}crates/neo-sdk/check.sh`))
+    keys.add('claw-sdk-quality')
   if (
     changedFiles.includes(
       `${AGENT}crates/browseros-core/src/assets/agent-cursor.js`,
@@ -260,6 +262,9 @@ export function computeAffectedSuites(
     keys.add('agent-cursor')
     keys.add('build')
   }
+  // The existing SDK quality job owns the offline Python helper check.
+  if (changedFiles.some((f) => f.startsWith(`${AGENT}tools/remote-builds/`)))
+    keys.add('claw-sdk-quality')
   // The crate's assets and probe-protocol.json are built from the vendored sources in the
   // Rust crate, which is not a dependency of the build package, so a change to any of them
   // must rerun the freshness test.
